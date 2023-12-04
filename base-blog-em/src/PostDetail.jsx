@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 async function fetchComments(postId) {
   const response = await fetch(
@@ -30,6 +30,9 @@ export function PostDetail({ post }) {
     () => fetchComments(post.id)
   );
 
+  const deleteMutation = useMutation((postId) => deletePost(postId));
+  const updateMutation = useMutation((postId) => updatePost(postId));
+
   if (isLoading) return <h3>Loading...</h3>;
 
   if (isError)
@@ -43,7 +46,31 @@ export function PostDetail({ post }) {
   return (
     <>
       <h3 style={{ color: "blue" }}>{post.title}</h3>
-      <button>Delete</button> <button>Update title</button>
+      <button onClick={() => deleteMutation.mutate(post.id)}>Delete</button>
+      {deleteMutation.isLoading && (
+        <p style={{ color: "purple" }}>Deleting the post</p>
+      )}
+      {deleteMutation.isSuccess && (
+        <p style={{ color: "green" }}>Post has been deleted</p>
+      )}
+      {deleteMutation.isError && (
+        <p style={{ color: "red" }}>Error deleting the post</p>
+      )}
+
+      <button onClick={() => updateMutation.mutate(post.id)}>
+        Update title
+      </button>
+
+      {updateMutation.isLoading && (
+        <p style={{ color: "purple" }}>Update the post</p>
+      )}
+      {updateMutation.isSuccess && (
+        <p style={{ color: "green" }}>Post has been updated</p>
+      )}
+      {updateMutation.isError && (
+        <p style={{ color: "red" }}>Error updating the post</p>
+      )}
+
       <p>{post.body}</p>
       <h4>Comments</h4>
       {data.map((comment) => (
